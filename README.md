@@ -9,8 +9,8 @@ Edit query file with the desired SQL/Oracle statement.
 
 Edit grabber.bat with your JDBC settings.
 
-run grabber.bat and pass JDBC password as command line argument.
+run grabber.bat and pass JDBC user & password as command line argument.
 For example:
 ```shell
-grabber MY_PASSWORD
+grabber MY_USER MY_PASSWORD
 ```
