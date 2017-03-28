@@ -31,7 +31,7 @@ services:
     dns:
       - 8.8.8.8
       - 4.4.4.4
-      - 16.110.135.52
+      - ${DNS_RESOLVER_IP}
     environment:
       # - xpack.monitoring.enabled=${USE_XPACK}
       - JDBC_DRIVER_FILE=${LS_PATH}/${LS_DRIVER_DIR}/${LS_DRIVER_FILE}
