@@ -1,0 +1,71 @@
+version: "3"
+services:
+  elasticsearch:
+    image: "docker.elastic.co/elasticsearch/elasticsearch:5.2.2"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      # - xpack.monitoring.enabled=${USE_XPACK}
+      - cluster.name=${CLUSTER_NAME}
+      - "ES_JAVA_OPTS=-Xms${ES_MEMORY} -Xmx${ES_MEMORY}"
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - ./es/entrypoint.sh:/usr/share/elasticsearch/entrypoint.sh
+    command: |
+      bash -c '
+        chmod u+x ./entrypoint.sh &&
+        ./entrypoint.sh
+      '
+  logstash:
+    image: "docker.elastic.co/logstash/logstash:5.2.2"
+    depends_on:
+      - elasticsearch
+    dns:
+      - 8.8.8.8
+      - 4.4.4.4
+      - 16.110.135.52
+    environment:
+      # - xpack.monitoring.enabled=${USE_XPACK}
+      - JDBC_DRIVER_FILE=${LS_PATH}/${LS_DRIVER_DIR}/${LS_DRIVER_FILE}
+      - JDBC_DRIVER_CLASS=${LS_DRIVER_CLASS}
+      - JDBC_USER=${LS_DB_USER}
+      - JDBC_PASSWORD=${LS_DB_PASSWORD}
+      - JDBC_CONNECTION_STRING=${LS_CONNECTION_STRING}
+      - LS_DB_QUERY_STRING_FILE=${LS_PATH}/${LS_QUERIES_DIR}/${LS_DB_QUERY_STRING_FILE}
+      - LS_OUTPUT_ES=${ES_URL}
+      - LS_PATH=${LS_PATH}
+    command: |
+      bash -c '
+        chmod u+x ${LS_PATH}/entrypoint.sh &&
+        ${LS_PATH}/entrypoint.sh
+      '
+    volumes:
+      - ./ls/pipelines:${LS_PATH}/${LS_PIPELINES_DIR}
+      - ./ls/drivers/${LS_DRIVER_FILE}:${LS_PATH}/${LS_DRIVER_DIR}/${LS_DRIVER_FILE}
+      - ./ls/queries:${LS_PATH}/${LS_QUERIES_DIR}
+      - ./ls/entrypoint.sh:${LS_PATH}/entrypoint.sh
+  kibana:
+    image: "docker.elastic.co/kibana/kibana:5.2.2"
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    environment:
+      # - XPACK_MONITORING_ENABLED=${USE_XPACK}
+      - KIBANA_PATH=${KIBANA_PATH}
+      - ELASTICSEARCH_URL=${ES_URL}
+    command: |
+      bash -c '
+        chmod u+x ${KIBANA_PATH}/entrypoint.sh &&
+        ${KIBANA_PATH}/entrypoint.sh
+      '
+    volumes:
+      - ./kibana/entrypoint.sh:${KIBANA_PATH}/entrypoint.sh
