@@ -38,7 +38,16 @@ Use this project to get up & running with data visualization!
 
 1. Clone this repo
 2. Create a query file under ```ls/queries```, here you should describe the query for getting the desired data from your DB
-3. Edit the file ```ceribro.config``` & fill the required info (DB Connection string, DB User, DB Password, Query file for Logstash)
+3. Create the file ```ceribro.config``` & fill the required info (DB Connection string, DB User, DB Password, Query file for Logstash)
+```ini
+DNS_RESOLVER_IP=127.0.0.1                                               # DNS server for resolving host-names
+
+LS_CONNECTION_STRING=jdbc:oracle:thin:@[ORACLE-SERVER]:[PORT]/[SID]     # DB connection string
+LS_DB_USER=[USER]
+LS_DB_PASSWORD=[PASSWORD]
+
+LS_DB_QUERY_STRING_FILE=[QUERY_FILE_NAME]                              # Loaded dynamically to the generic pipeline
+```
 4. Run the startup script ```start.sh```, the cluster will be created & Logstash will start indexing data into Elasticsearch
 5. Browse ```http://localhost:9200``` to look-into Elasticsearch
 6. Start using Kibana via this URL ```http://localhost:5601```
